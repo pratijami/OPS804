@@ -1,0 +1,106 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## GitHub Documents
+
+This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+
+## Including Code
+
+You can include R code in the document as follows:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+---
+title: "ER Waiting"
+author: "Prats Jamison"
+date: "October 28, 2016"
+output: 
+  pdf_document: 
+    keep_tex: yes
+    number_sections: yes
+    toc: yes
+---
+
+library(sqldf)
+library(caret)
+library(ROCR)
+library(car)
+library(effects)
+library(colorspace)
+library(lattice)
+library(grid)
+library(foreign)
+library(readr)
+library(dplyr)
+library(knitr)
+
+
+turnover = read.csv("ERWaiting.csv")
+---
+
+#Introduction : 
+This is the HW assignment for week 2 date (10/15). Here were are analysing the ER waiting time by calculating descriptive statistice, Anova, and graphs.
+
+## Descriptive Statistics
+Descriptive statistics are numbers that are used to summarize and describe data. The word "data" refers to the information that has been collected from an experiment, a survey, a historical record, etc.
+
+```{r, eval=FALSE}
+summary(ERWaiting)
+stat.desc(ERWaiting)
+qqnorm(ERWaiting$waitingTime)
+qqline(ERWaiting$waitingTime)
+```
+### Anova
+Analysis of Variance(ANOVA) is a collecition of statitical models used ti analyze the difference amoung group means and thier associated procedures ( such as "variation" among and between groups). 
+
+In our ANOVA analysis our P value is < 0.05, so we can reject the null hypotesis and from the Tukey polt we can see that Main has the highest mean and satelite 1 has the lowest mean. 
+
+
+```{r}
+fit <- lm(data = ERWaiting, waitingTime~hospital)
+ERWaiting.aov <- aov(fit)
+ERWaiting.aov.summary <- summary(ERWaiting.aov)
+ERWaiting.tukey <- TukeyHSD(ERWaiting.aov)
+plot(ERWaiting.tukey)
+ERWaiting.normal <- data.frame(skew = ERWaiting$skew, kurt = ERWaiting$kurtosis)
+ERWaiting.levene <- leveneTest(fit)
+df <- anova(fit)[, "Df"]
+names(df) <- c("between", "within")
+ERWaiting.f.crit <- qf(alpha, df["between"], df["within"], lower.tail = FALSE)
+ERWaiting.f.value <- ERWaiting.aov.summary[[1]]$F[1]
+ST <- shapiro.test(ERWaiting$waitingTime)
+ST
+SC <- plot(ERWaiting$hospital)
+SC
+HS <- hist(ERWaiting$waitingTime)
+HS
+bp <- ggplot(ERWaiting, aes(x = hospital, y = waitingTime)) +
+  geom_boxplot() + 
+  labs(y = "Average Waiting Time", x = "Hospitals") 
+bp
+```
+
+``` {r, echo=FALSE}
+kable(ERWaiting)
+```
+
+
