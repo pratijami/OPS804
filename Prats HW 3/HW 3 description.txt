@@ -1,0 +1,40 @@
++# Homework 
++ 
++Create a linear regression analysis report based on a datasample in ToyotaCorolla.csv.zip predicting the price of a car. 
++ 
++The dataset includes the following variable: 
++ 
++Price - The price of the car 
++Age - The age of the car in month 
++KM - Accumulated kilometer on the odometer 
++FuelType - Type of fuel used 
++HP - Horsepower of the car 
++MetColor - Whether the car has metallic (1) or not (0) 
++Transmission - Whether the car has automatic transmission (1) or not (0) 
++CC - Cylinder volumen in cubic centimeter 
++Doors - Number of doors 
++Weight - Weight of the car in kilogram 
++ 
++The report must include: 
++1. a section with the descriptive statistics, reporting the descriptive statistics in word and numbers, 
++2. a section with the linear regression analysis and the optimal solution, including the hypothesis, testing the assumptions and the result of these tests. 
++3. a section reporting your findings of the analysis 
++4. How much would a car cost, that has the following attributes: 
++	a. 12 month old 
++	b. Petrolium 
++	c. 185 hp 
++	d. Metallic Color 
++	e. Standard transmission 
++	f. 2000 CC 
++	g. 4 Doors 
++ 
++Deliver the report as a PDF document as well as a .Rmd file and add the .R file that you used to develop the model. 
++ 
++Deliver the information as a separate folder using Github by using your own folder within the OPS804 organization (take a look at the PDF I sent earlier), not in your own Github repository! 
++ 
++Your folder should include this structure: 
++ 
++HW 3/ 
++	- data 
++	- report 
++	- graphs 
