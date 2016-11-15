@@ -1,0 +1,174 @@
+---
+title: "Cars Predicted value"
+author: 'Prats Jamison '
+date: '`r Sys.Date()`'
+---
+install.packages(knitr)
+library(knitr)
+```{r setup, include=FALSE}
+library(knitr)
+library(tufte)
+# invalidate cache when the tufte version changes
+knitr::opts_chunk$set(cache.extra = packageVersion("tufte"), tidy = FALSE)
+options(htmltools.dir.version = FALSE)
+
+```
+
+## Calculating with R
+Before we start we will load necessary libraries
+```{R}
+library(knitr)
+library(leaps)#Exhaustive search for the best of variables in x for predicting y
+library(e1071)#skewness and kurotosis
+library(moments)
+library(broom)
+library(dplyr)
+library(plyr)
+library(ISLR)
+library(plm)
+library(lattice)
+library(ggplot2)
+```
+To run the analysis , we need to load the data in to R
+```{R}
+#Read Data
+Toyotacor <- read.csv("ToyotaCorolla.csv")
+attach(Toyotacor)
+summary(Toyotacor)
+```
+
+### Familiarize yourself with th data
+
+```{R}
+# Variable definition 
+# MPG - Miles per galon 
+# GPM - Galons per miles 
+# WT - Weight 
+# DIS - Dicplacement 
+# NC - Number of cylinders 
+# HP - Horsepower 
+# ACC - acceleration (0-60mph) in seconds 
+# ET - V-type engine (0) or straight (1) 
+
+head(Toyotacor)
+
+ # Become familiar with the data 
+plot(Price ~ KM, data = Toyotacor)
+plot(Price ~ Age, data = Toyotacor)
+plot(Price ~ FuelType, data = Toyotacor)
+plot(Price ~ HP, data = Toyotacor)
+plot(Price ~ MetColor, data = Toyotacor)
+plot(Price ~ Automatic, data = Toyotacor)
+plot(Price ~ CC, data = Toyotacor)
+plot(Price ~ Doors, data = Toyotacor)
+plot(Price ~ Weight, data = Toyotacor)
+```
+### Prepare for analysis
+
+Descriptive statistics are statistics that quantitatively describe or summarise features of a collection of information
+```{R, eval=FALSE, include=FALSE}
+#1.Descriptive Statistics
+DS <- stat.desc(Toyotacor)
+print(DS)
+```
+
+## Linear Regression 
+
+Linear regression models are probably the most common used technique in data and buisiness analytics. They can be very powerful but one has to remember their limitations and constrains. The most important limitation is, that they should only be used to predict values within the range of the test data set. 
+Here are are predicting the values for Toyota Coralla.
+
+```{R}
+options(max.print = 10)
+# show results of first Analysis
+Toyotacor.m1 <- lm(Price ~ ., data = Toyotacor)
+summary(Toyotacor.m1) # Show results of the first model
+#Confident Interval
+confint(Toyotacor.m1)
+Toyotacor.m1.confint <- confint(Toyotacor.m1)
+## Check with a correlation matrix if predictor variables are themselves related
+Toyotacor.D= as.data.frame(matrix(Toyotacor))[1,]
+TyCo.col <- cor(data.frame(lapply(Toyotacor.D, rank)))
+head(print(TyCo.col))
+```
+
+# Calculate regression - Model 1
+```{R}
+options(max.print = 10)
+#calculate regression - Model 1
+x <- Toyotacor[, 2:10] # independent variable
+head(x)
+y <- Toyotacor[,1] # dependent variable
+head(y)
+#model selection 
+Toyotacor.out <- summary(regsubsets(x,y, nbest = 2, nvmax = ncol(x)))
+Toyotacor.regtab <- cbind(Toyotacor.out$which, Toyotacor.out$rsq, Toyotacor.out$adjr2, Toyotacor.out$cp)
+
+colnames(Toyotacor.regtab) <- c("(Intercept)", "Age", "KM", "FuelType", "HP", "MetColor", "Transmission", "CC" , "Doors", "Weight", "R-Sq", "R-Sq(adj)", "Cp")
+print(Toyotacor.regtab) # pValue is < 0.05, so we reject null hypothesis
+head.matrix(Toyotacor.regtab)
+```
+
+### Regression analysis with the given variable 7 expect km and windows and also find the car cost using these variables
+
+```{r} 
+options(max.print = 10)
+#create second model 
+Toyotacor.m2 <- lm(Price~ Age + FuelType+HP+MetColor+ Automatic+ CC + Doors, data = Toyotacor) #just with weight
+Toyotacor.m2.summary <- summary(Toyotacor.m2)
+head(print(Toyotacor.m2.summary))
+
+
+#Model 2 Conf Intervals
+Toyotacor.m2.confint <- confint(Toyotacor.m2)
+head(print(Toyotacor.m2.confint))
+
+Toyotacor.m2 <- lm(Price~ Age + FuelType+HP+MetColor+ Automatic+ CC + Doors, data = Toyotacor)
+head(Toyotacor.m2)
+
+#Assigning values
+given.Toyotacor <- data.frame(Age=12, FuelType=1, HP=185, MetColor=1, Automatic=0, CC=2000, Doors=4)
+predicted.price <- predict(Toyotacor.m2,given.Toyotacor)
+as.data.frame(print(predicted.price))# Predicted Car Value
+```
+
+```{R}
+options(max.print = 10)
+#predicted Values/ Residuals
+Toyotaco_hat <- fitted(Toyotacor.m1)# predicted values
+print(Toyotaco_hat)
+Toyota_resid <- residuals(Toyotacor.m1) # residuals
+print(Toyota_resid)
+```
+## So now that we have two models, the question would be, which one is better? In order to answer this question, we need to cross validated the combinaion of each model. let us start with the first model.
+### cross- validation ( leave one out) for the model on all six regressors
+
+```{R}
+options(max.print = 10)
+n <- length(Toyotacor$Price)
+diff <- dim(n)
+percdiff <- dim(n)
+for (k in 1:n) {
+  train1 <- c(1:n)
+  train <- train1[train1 !=k ]
+  m2 <- lm(Price~ ., data = Toyotacor[train,])
+  pred <- predict(m2, newdat = Toyotacor[-train,])
+  obs <- Toyotacor$Price[-train]
+  diff[k] <- obs - pred
+  percdiff[k] <- abs(diff[k]) / obs
+}
+Toyotacor.m2.me <- mean(diff)
+Toyotacor.m2.rmse <- sqrt(mean(diff**2))
+Toyotacor.m2.mape <- 100*(mean(percdiff))
+
+Toyotacor.m2.me
+Toyotacor.m2.rmse
+Toyotacor.m2.mape
+predicted.price
+```
+
+```{R}
+#check if assumptions are met...
+plot(Toyotacor.m1)
+ggsave("HW3 Graph/ToyotaCorlin.pdf")
+```
+
