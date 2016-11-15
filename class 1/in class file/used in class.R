@@ -41,3 +41,9 @@ n <- c(2,3,4)
 m <- rbind(m,n)
 o <- c(5,7,2,2,4)
 m <- cbind(m,o)
+
+
+flights <- read.csv("class exercise/data/flights/On_Time_On_Time_Performance_2010_1/On_Time_On_Time_Performance_2010_1.csv")
+
+mean(flights$ArrDelayMinutes, na.rm = T)
+median(flights$ArrDelayMinutes, na.rm = T)
