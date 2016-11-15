@@ -1,4 +1,5 @@
-setwd("C:/Users/Johnj/Desktop/School/Quarter 2/OPS 804 Advanced Data Analysis/HW/HW 3")
+getwd()
+set.seed(1)
 
 #libraries
 library(lpSolveAPI)
@@ -75,6 +76,7 @@ plot(Price ~ ., data = Toyotacor.m1)
 Toyotaco_hat <- fitted(Toyotacor.m1)# predicted values
 as.data.frame(Toyotaco_hat)
 Toyota_resid <- residuals(Toyotacor.m1) # residuals
+options(max.print = 10)
 as.data.frame(Toyota_resid)
 
 #Confident Interval
@@ -93,11 +95,13 @@ TyCo.col
 layout(matrix(1:4,2,2))
 plot(TyCo.col)
 #calculate regression - Model 1
+options(max.print = 10)
 x <- Toyotacor[, 2:10] # independent variable
 x
 y <- Toyotacor[,1] # dependent variable
 y
 #model selection 
+options(max.print = 10)
 Toyotacor.out <- summary(regsubsets(x,y, nbest = 2, nvmax = ncol(x)))
 Toyotacor.regtab <- cbind(Toyotacor.out$which, Toyotacor.out$rsq, Toyotacor.out$adjr2, Toyotacor.out$cp)
 
@@ -106,12 +110,14 @@ Toyotacor.regtab
 #pvalue is < 0.05, so we reject the null hypothesis
 
 #create second model 
+options(max.print = 10)
 Toyotacor.m2 <- lm(Price~ Age + FuelType+HP+MetColor+ Automatic+ CC + Doors, data = Toyotacor) #just with weight
 Toyotacor.m2.summary <- summary(Toyotacor.m2)
 print(Toyotacor.m2.summary)
 
 
 #Model 2 Conf Intervals
+options(max.print = 10)
 Toyotacor.m2.confint <- confint(Toyotacor.m2)
 print(Toyotacor.m2.confint)
 
@@ -119,10 +125,12 @@ Toyotacor.m2 <- lm(Price~ Age + FuelType+HP+MetColor+ Automatic+ CC + Doors, dat
 Toyotacor.m2
 
 #Assigning values
+options(max.print = 10)
 given.Toyotacor <- data.frame(Age=12, FuelType=1, HP=185, MetColor=1, Automatic=0, CC=2000, Doors=4)
 predicted.price <- predict(Toyotacor.m2,given.Toyotacor)
 print(predicted.price)
 # Create a loop to test 
+options(max.print = 10)
 
 n <- length(Toyotacor$Price)
 diff <- dim(n)

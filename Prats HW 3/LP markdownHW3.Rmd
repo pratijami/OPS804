@@ -1,18 +1,7 @@
 ---
-title: "Tufte Handout"
-subtitle: "Toyota cars predicted value in R Markdown"
-author: "Prats Jamison "
-date: "`r Sys.Date()`"
-output:
-  tufte::tufte_html: default
-  tufte::tufte_handout:
-    citation_package: natbib
-    latex_engine: xelatex
-  tufte::tufte_book:
-    citation_package: natbib
-    latex_engine: xelatex
-bibliography: skeleton.bib
-link-citations: yes
+title: "Cars Predicted value"
+author: 'Prats Jamison '
+date: '`r Sys.Date()`'
 ---
 install.packages(knitr)
 library(knitr)
@@ -80,6 +69,7 @@ Descriptive statistics are statistics that quantitatively describe or summarise 
 ```{R, eval=FALSE, include=FALSE}
 #1.Descriptive Statistics
 DS <- stat.desc(Toyotacor)
+print(DS)
 ```
 
 ## Linear Regression 
@@ -88,6 +78,7 @@ Linear regression models are probably the most common used technique in data and
 Here are are predicting the values for Toyota Coralla.
 
 ```{R}
+options(max.print = 10)
 # show results of first Analysis
 Toyotacor.m1 <- lm(Price ~ ., data = Toyotacor)
 summary(Toyotacor.m1) # Show results of the first model
@@ -97,57 +88,62 @@ Toyotacor.m1.confint <- confint(Toyotacor.m1)
 ## Check with a correlation matrix if predictor variables are themselves related
 Toyotacor.D= as.data.frame(matrix(Toyotacor))[1,]
 TyCo.col <- cor(data.frame(lapply(Toyotacor.D, rank)))
-print(TyCo.col)
+head(print(TyCo.col))
 ```
 
 # Calculate regression - Model 1
 ```{R}
+options(max.print = 10)
 #calculate regression - Model 1
 x <- Toyotacor[, 2:10] # independent variable
-x
+head(x)
 y <- Toyotacor[,1] # dependent variable
-y
+head(y)
 #model selection 
 Toyotacor.out <- summary(regsubsets(x,y, nbest = 2, nvmax = ncol(x)))
 Toyotacor.regtab <- cbind(Toyotacor.out$which, Toyotacor.out$rsq, Toyotacor.out$adjr2, Toyotacor.out$cp)
 
 colnames(Toyotacor.regtab) <- c("(Intercept)", "Age", "KM", "FuelType", "HP", "MetColor", "Transmission", "CC" , "Doors", "Weight", "R-Sq", "R-Sq(adj)", "Cp")
 print(Toyotacor.regtab) # pValue is < 0.05, so we reject null hypothesis
+head.matrix(Toyotacor.regtab)
 ```
 
 ### Regression analysis with the given variable 7 expect km and windows and also find the car cost using these variables
 
-```{R}
+```{r} 
+options(max.print = 10)
 #create second model 
 Toyotacor.m2 <- lm(Price~ Age + FuelType+HP+MetColor+ Automatic+ CC + Doors, data = Toyotacor) #just with weight
 Toyotacor.m2.summary <- summary(Toyotacor.m2)
-print(Toyotacor.m2.summary)
+head(print(Toyotacor.m2.summary))
 
 
 #Model 2 Conf Intervals
 Toyotacor.m2.confint <- confint(Toyotacor.m2)
-print(Toyotacor.m2.confint)
+head(print(Toyotacor.m2.confint))
 
 Toyotacor.m2 <- lm(Price~ Age + FuelType+HP+MetColor+ Automatic+ CC + Doors, data = Toyotacor)
-Toyotacor.m2
+head(Toyotacor.m2)
 
 #Assigning values
 given.Toyotacor <- data.frame(Age=12, FuelType=1, HP=185, MetColor=1, Automatic=0, CC=2000, Doors=4)
 predicted.price <- predict(Toyotacor.m2,given.Toyotacor)
-print(predicted.price)# Predicted Car Value
+as.data.frame(print(predicted.price))# Predicted Car Value
 ```
 
 ```{R}
+options(max.print = 10)
 #predicted Values/ Residuals
 Toyotaco_hat <- fitted(Toyotacor.m1)# predicted values
-as.data.frame(Toyotaco_hat)
+print(Toyotaco_hat)
 Toyota_resid <- residuals(Toyotacor.m1) # residuals
-as.data.frame(Toyota_resid)
+print(Toyota_resid)
 ```
 ## So now that we have two models, the question would be, which one is better? In order to answer this question, we need to cross validated the combinaion of each model. let us start with the first model.
 ### cross- validation ( leave one out) for the model on all six regressors
 
 ```{R}
+options(max.print = 10)
 n <- length(Toyotacor$Price)
 diff <- dim(n)
 percdiff <- dim(n)
